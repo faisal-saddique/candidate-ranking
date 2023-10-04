@@ -9,8 +9,10 @@ import tempfile
 import tiktoken
 import re
 from langchain.docstore.document import Document
-
 from langchain.vectorstores import FAISS
+
+import json
+from doctran import Doctran, ExtractProperty
 
 from dotenv import load_dotenv
 
