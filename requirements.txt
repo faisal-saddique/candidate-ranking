@@ -1,0 +1,7 @@
+langchain==0.0.306
+python-dotenv==1.0.0
+streamlit==1.26.0
+tiktoken==0.3.3
+openai
+faiss-cpu
+pymupdf
