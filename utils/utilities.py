@@ -19,9 +19,6 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Set the environment variable
-os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY')
-
 def add_vectors_to_existing_FAISS(chunked_docs,old_Knowledgebase):
     """Embeds a list of Documents and adds them to a FAISS Knowledgebase"""
     # Embed the chunks
