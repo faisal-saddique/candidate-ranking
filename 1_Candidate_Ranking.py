@@ -18,14 +18,14 @@ st.set_page_config(
 # Load environment variables from .env file
 load_dotenv()
 
-st.title("Create New KnowledgeBase")
+st.title("Candidate Ranking")
 
 accepted_file_types = ["pdf"]
 
 uploaded_files = st.file_uploader("Upload one or more files", accept_multiple_files=True, type=accepted_file_types)
 
 try:
-    if st.button("Create Knowledgebase", use_container_width=True):
+    if st.button("Proceed", use_container_width=True):
         if uploaded_files:
             docs = None
             tot_len = 0
