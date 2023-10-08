@@ -83,7 +83,7 @@ async def main():
                 st.error("Please add some files first!")
 
     with col2:
-        st.image("assets\\Picture1.png")
+        st.image("./assets/Picture1.png")
 
 if __name__ == "__main__":
     asyncio.run(main())
