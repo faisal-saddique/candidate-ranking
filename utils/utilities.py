@@ -19,6 +19,55 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+async def extract_properties(content):
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    OPENAI_MODEL = "gpt-3.5-turbo-16k"
+    OPENAI_TOKEN_LIMIT = 12000
+
+    doctran = Doctran(openai_api_key=OPENAI_API_KEY, openai_model=OPENAI_MODEL, openai_token_limit=OPENAI_TOKEN_LIMIT)
+    document = doctran.parse(content=content)
+    properties = [
+            ExtractProperty(
+                name="contact_info", 
+                description="A list of each person mentioned and their contact information",
+                type="array",
+                items={
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "The name of the person"
+                        },
+                        "contact_info": {
+                            "type": "object",
+                            "properties": {
+                                "phone": {
+                                    "type": "string",
+                                    "description": "The phone number of the person"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "description": "The email address of the person"
+                                },
+                                "experience": {
+                                    "type": "string",
+                                    "description": "The work experience of the person, can be voluntary or professional"
+                                },
+                                "qualifications": {
+                                    "type": "string",
+                                    "description": "The qualifications of the person"
+                                }
+                            }
+                        }
+                    }
+                },
+                required=True
+            )
+    ]
+    transformed_document = await document.extract(properties=properties).execute()
+    # print(json.dumps(transformed_document.extracted_properties, indent=2))
+    return transformed_document.extracted_properties["contact_info"][0]
+
 def add_vectors_to_existing_FAISS(chunked_docs,old_Knowledgebase):
     """Embeds a list of Documents and adds them to a FAISS Knowledgebase"""
     # Embed the chunks
@@ -27,11 +76,11 @@ def add_vectors_to_existing_FAISS(chunked_docs,old_Knowledgebase):
     Knowledgebase.merge_from(old_Knowledgebase)
     return Knowledgebase
 
-def add_vectors_to_FAISS(chunked_docs):
+def add_vectors_to_FAISS(docs):
     """Embeds a list of Documents and adds them to a FAISS Knowledgebase"""
     # Embed the chunks
     embeddings = OpenAIEmbeddings()  # type: ignore
-    Knowledgebase = FAISS.from_documents(chunked_docs,embeddings)
+    Knowledgebase = FAISS.from_documents(docs,embeddings)
     return Knowledgebase
 
 def refined_docs(docs):
@@ -42,8 +91,8 @@ def refined_docs(docs):
         length_function = len,
     )
 
-    for doc in docs:
-        doc.metadata["filename_key"] = convert_filename_to_key(doc.metadata["source"])
+    # for doc in docs:
+    #     doc.metadata["filename_key"] = convert_filename_to_key(doc.metadata["source"])
 
     print(f"Lenght of docs is {len(docs)}")
     return text_splitter.split_documents(docs)
