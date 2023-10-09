@@ -14,7 +14,7 @@ import pandas as pd
 load_dotenv()
 import os
 
-st.success(os.getenv("OPENAI_API_KEY"))
+
 
 st.set_page_config(
     page_title='Prodigy AI',
@@ -22,6 +22,8 @@ st.set_page_config(
     layout='wide',
     initial_sidebar_state='expanded'
 )
+
+st.success(os.getenv("OPENAI_API_KEY"))
 
 async def main():
 
