@@ -39,7 +39,7 @@ async def main():
                 extracted_features_list = []
                 for file in uploaded_files:
                     file_extension = file.name.split(".")[-1].upper()
-                    st.write(f'File: {file.name}, Extension: {file_extension}')
+                    # st.write(f'File: {file.name}, Extension: {file_extension}')
                     file_content = file.read()  # Read the content of the uploaded file
 
                     if file_extension == 'PDF':
