@@ -3,7 +3,8 @@ from utils.utilities import (
     parse_pdf,
     num_tokens_from_string,
     add_vectors_to_FAISS,
-    extract_properties
+    extract_properties,
+    get_ai_response
 )
 from dotenv import load_dotenv
 import asyncio
@@ -20,7 +21,7 @@ st.set_page_config(
     initial_sidebar_state='expanded'
 )
 
-async def main():
+def main():
 
     col1, col2 = st.columns(2,gap="large")
 
@@ -62,8 +63,9 @@ async def main():
                     st.info("Docstore Created.")
                     with st.spinner("Extracting Properties..."):
                         for item in docs_and_scores:
-                            # Define your list of dictionaries
-                            extracted_features_list.append({"properties":await extract_properties(content=item[0].page_content),"score":item[1]})
+                            extracted_features = get_ai_response(content=item[0].page_content)
+                            print(extracted_features)
+                            extracted_features_list.append({"properties":extracted_features,"score":item[1]})
 
                         # Extract data and create a Pandas DataFrame
                         st.session_state["df"] = pd.DataFrame([
@@ -71,7 +73,7 @@ async def main():
                                 'Name': entry['properties']['name'],
                                 # 'Phone': entry['properties']['contact_info']['phone'],
                                 # 'Email': entry['properties']['contact_info']['email'],
-                                'Ranking':100 - math.ceil(entry['score'] * 100),
+                                'Points':100 - math.ceil(entry['score'] * 100),
                                 'Experience': entry['properties']['contact_info']['experience'],
                                 'Qualifications': entry['properties']['contact_info']['qualifications']
                             }
@@ -92,4 +94,4 @@ async def main():
         st.dataframe(st.session_state.df,use_container_width=True)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

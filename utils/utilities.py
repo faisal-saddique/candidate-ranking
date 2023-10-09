@@ -7,9 +7,10 @@ from langchain.vectorstores.faiss import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 import tempfile
 import tiktoken
-import re
 from langchain.docstore.document import Document
 from langchain.vectorstores import FAISS
+import openai
+from pydantic import BaseModel
 
 import json
 from doctran import Doctran, ExtractProperty
@@ -18,6 +19,50 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
+
+# Set Open AI API Key
+api_key = os.getenv("OPENAI_API_KEY")
+assert api_key is not None, "API Key not set in the environment"
+
+openai.api_key = api_key
+
+# Define the PyDantic schema for contact_info
+class ContactInfo(BaseModel):
+    phone: str
+    email: str
+    experience: str
+    qualifications: str
+
+# Define the PyDantic schema for a PersonInformation
+class PersonInformation(BaseModel):
+    name: str
+    contact_info: ContactInfo
+
+def get_ai_response(content: str) -> PersonInformation:
+    # Make a call to OpenAI
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-0613",
+        messages=[
+            {"role": "user", "content": content}
+        ],
+        functions=[
+            {
+                "name": "get_features_from_a_cv_resume",
+                "description": "Get the individual properties out of a CV/Resume",
+                "parameters": PersonInformation.schema()  # Use the PersonInformation schema here
+            }
+        ],
+        function_call={"name": "get_features_from_a_cv_resume"}
+    )
+
+    # Parse JSON output from the AI model
+    output = json.loads(response.choices[0]["message"]["function_call"]["arguments"])
+    return output
+    # # Load JSON optionally into the PyDantic model (or) use it directly
+    # person = PersonInformation(**output)
+
+    # return person
 
 async def extract_properties(content):
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -64,6 +109,7 @@ async def extract_properties(content):
                 required=True
             )
     ]
+    
     transformed_document = await document.extract(properties=properties).execute()
     print(json.dumps(transformed_document.extracted_properties, indent=2))
     return transformed_document.extracted_properties["contact_info"][0]
