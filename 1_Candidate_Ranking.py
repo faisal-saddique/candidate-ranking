@@ -74,14 +74,15 @@ async def main():
                                 'Name': entry['properties']['name'],
                                 # 'Phone': entry['properties']['contact_info']['phone'],
                                 # 'Email': entry['properties']['contact_info']['email'],
-                                'Ranking':entry['score'],
+                                'Ranking':entry['score']*100,
                                 'Experience': entry['properties']['contact_info']['experience'],
                                 'Qualifications': entry['properties']['contact_info']['qualifications']
                             }
                             for entry in extracted_features_list
                         ])
                         # Use Streamlit to display the DataFrame
-                        st.write(df)
+                        st.title("Results")
+                        st.dataframe(df,use_container_width=True)
                 else:
                     st.error("No text found in the docs to index. Please make sure the documents you uploaded have selectable text.")
             else:
