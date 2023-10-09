@@ -71,7 +71,7 @@ async def extract_properties(content):
 def add_vectors_to_existing_FAISS(chunked_docs,old_Knowledgebase):
     """Embeds a list of Documents and adds them to a FAISS Knowledgebase"""
     # Embed the chunks
-    embeddings = OpenAIEmbeddings()  # type: ignore
+    embeddings = OpenAIEmbeddings(openai_api_key=os.getenv("OPENAI_API_KEY"))  # type: ignore
     Knowledgebase = FAISS.from_documents(chunked_docs,embeddings)
     Knowledgebase.merge_from(old_Knowledgebase)
     return Knowledgebase
