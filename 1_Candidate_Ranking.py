@@ -74,8 +74,8 @@ def main():
                                 # 'Phone': entry['properties']['contact_info']['phone'],
                                 # 'Email': entry['properties']['contact_info']['email'],
                                 'Points':100 - math.ceil(entry['score'] * 100),
-                                'Experience': entry['properties']['contact_info']['experience'],
-                                'Qualifications': entry['properties']['contact_info']['qualifications']
+                                'Experience': entry['properties']['experience'],
+                                'Qualifications': entry['properties']['qualifications']
                             }
                             for entry in extracted_features_list
                         ])

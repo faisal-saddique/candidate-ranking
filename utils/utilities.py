@@ -40,6 +40,7 @@ class PersonInformation(BaseModel):
     contact_info: ContactInfo
 
 def get_ai_response(content: str) -> PersonInformation:
+
     # Make a call to OpenAI
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
@@ -50,7 +51,32 @@ def get_ai_response(content: str) -> PersonInformation:
             {
                 "name": "get_features_from_a_cv_resume",
                 "description": "Get the individual properties out of a CV/Resume",
-                "parameters": PersonInformation.schema()  # Use the PersonInformation schema here
+                "parameters": {
+                    'type': 'object',
+                    'properties': {
+                        'name': {
+                            'type': 'string',
+                            'description': 'Name of the person'
+                        },
+                        'phone': {
+                            'type': 'string',
+                            'description': 'Phone number of the person'
+                        },
+                        'email': {
+                            'type': 'string',
+                            'description': 'Email of the person'
+                        },
+                        'experience': {
+                            'type': 'string',
+                            'description': 'The experience of the person counted in years. Add up all the experience he has to have a single approximation. Count 2023 as the current year for calculation'
+                        },
+                        'qualifications': {
+                            'type': 'string',
+                            'description': 'The qualifications of the person'
+                        }
+
+                    }
+                }
             }
         ],
         function_call={"name": "get_features_from_a_cv_resume"}
