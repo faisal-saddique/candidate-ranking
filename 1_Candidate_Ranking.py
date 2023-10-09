@@ -59,6 +59,8 @@ async def main():
                     with st.spinner("Creating faiss_docstore..."):
                         docstore = add_vectors_to_FAISS(docs=docs)
                         docs_and_scores = docstore.similarity_search_with_score(job_description,k=no_of_docs)
+                    st.info("Docstore Created.")
+                    with st.spinner("Extracting Properties..."):
                         for item in docs_and_scores:
                             # Define your list of dictionaries
                             extracted_features_list.append({"properties":await extract_properties(content=item[0].page_content),"score":item[1]})
