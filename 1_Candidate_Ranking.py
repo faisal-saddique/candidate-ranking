@@ -1,6 +1,5 @@
 import streamlit as st
 from utils.utilities import (
-    refined_docs,
     parse_pdf,
     num_tokens_from_string,
     add_vectors_to_FAISS,
@@ -9,12 +8,10 @@ from utils.utilities import (
 from dotenv import load_dotenv
 import asyncio
 import pandas as pd
-
+import math
 # Load environment variables from .env file
 load_dotenv()
 import os
-
-
 
 st.set_page_config(
     page_title='Prodigy AI',
@@ -22,8 +19,6 @@ st.set_page_config(
     layout='wide',
     initial_sidebar_state='expanded'
 )
-
-
 
 async def main():
 
@@ -69,20 +64,18 @@ async def main():
                             extracted_features_list.append({"properties":await extract_properties(content=item[0].page_content),"score":item[1]})
 
                         # Extract data and create a Pandas DataFrame
-                        df = pd.DataFrame([
+                        st.session_state["df"] = pd.DataFrame([
                             {
                                 'Name': entry['properties']['name'],
                                 # 'Phone': entry['properties']['contact_info']['phone'],
                                 # 'Email': entry['properties']['contact_info']['email'],
-                                'Ranking':entry['score']*100,
+                                'Ranking':100 - math.ceil(entry['score'] * 100),
                                 'Experience': entry['properties']['contact_info']['experience'],
                                 'Qualifications': entry['properties']['contact_info']['qualifications']
                             }
                             for entry in extracted_features_list
                         ])
-                        # Use Streamlit to display the DataFrame
-                        st.title("Results")
-                        st.dataframe(df,use_container_width=True)
+
                 else:
                     st.error("No text found in the docs to index. Please make sure the documents you uploaded have selectable text.")
             else:
@@ -90,6 +83,11 @@ async def main():
 
     with col2:
         st.image("./assets/Picture1.png")
+
+    if "df" in st.session_state:
+        # Use Streamlit to display the DataFrame
+        st.title("Results")
+        st.dataframe(st.session_state.df,use_container_width=True)
 
 if __name__ == "__main__":
     asyncio.run(main())

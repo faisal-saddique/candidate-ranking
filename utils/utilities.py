@@ -22,7 +22,7 @@ load_dotenv()
 async def extract_properties(content):
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     OPENAI_MODEL = "gpt-3.5-turbo-16k"
-    OPENAI_TOKEN_LIMIT = 12000
+    OPENAI_TOKEN_LIMIT = 15000
 
     doctran = Doctran(openai_api_key=OPENAI_API_KEY, openai_model=OPENAI_MODEL, openai_token_limit=OPENAI_TOKEN_LIMIT)
     document = doctran.parse(content=content)
@@ -65,7 +65,7 @@ async def extract_properties(content):
             )
     ]
     transformed_document = await document.extract(properties=properties).execute()
-    # print(json.dumps(transformed_document.extracted_properties, indent=2))
+    print(json.dumps(transformed_document.extracted_properties, indent=2))
     return transformed_document.extracted_properties["contact_info"][0]
 
 def add_vectors_to_existing_FAISS(chunked_docs,old_Knowledgebase):
@@ -128,14 +128,8 @@ def parse_pdf(content,filename):
     pdf_loader = PyMuPDFLoader(temp_file_path)
     pdf_data = pdf_loader.load()  # Load PDF file
 
+    all_content = ""
     for doc in pdf_data:
-        # Merge hyphenated words
-        doc.page_content = re.sub(r"(\w+)-\n(\w+)", r"\1\2", doc.page_content)
-        # Fix newlines in the middle of sentences
-        doc.page_content = re.sub(r"(?<!\n\s)\n(?!\s\n)", " ", doc.page_content.strip())
-        # Remove multiple newlines
-        doc.page_content = re.sub(r"\n\s*\n", "\n\n", doc.page_content)
+        all_content += doc.page_content
 
-        doc.metadata["source"] = filename
-
-    return pdf_data
+    return [Document(page_content=all_content,metadata={"source":filename})]
