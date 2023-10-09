@@ -23,7 +23,7 @@ st.set_page_config(
     initial_sidebar_state='expanded'
 )
 
-st.success(os.getenv("OPENAI_API_KEY"))
+
 
 async def main():
 
